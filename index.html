@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111219" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="VintageVerb" />
+  <title>VintageVerb · Reverb Calculator</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark;background:#0d0f15;color:#f4f3f8;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -15%,#28213b 0,transparent 46%),#0d0f15}main{max-width:530px;margin:auto;padding:calc(28px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom))}
+    .eyebrow{color:#a89bbd;font-size:11px;font-weight:750;letter-spacing:2px}.top{margin-bottom:26px}h1{font-size:29px;letter-spacing:-.8px;margin:8px 0 5px;font-weight:750}.subtitle{color:#a9a6b6;font-size:14px;margin:0;line-height:1.5}.panel{border:1px solid #34303f;border-radius:22px;background:linear-gradient(150deg,#262234,#171821);padding:23px 21px;margin-bottom:26px;box-shadow:0 14px 35px #0003}.bpm-row,.settings-head,.setting{display:flex;justify-content:space-between;align-items:center}.bpm-label{font-weight:700;letter-spacing:1.5px;font-size:13px;color:#ded9e8}.bpm-value{font-size:40px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px}.unit{font-size:12px;color:#b9b1c9;margin-left:4px}.range{margin:25px 0 12px;width:100%;appearance:none;background:linear-gradient(to right,#c4a4fa 0%,#c4a4fa var(--progress),#484452 var(--progress),#484452 100%);height:6px;border-radius:20px;cursor:pointer;touch-action:pan-y}.range::-webkit-slider-thumb{appearance:none;width:26px;height:26px;border-radius:50%;background:#f2e9ff;border:5px solid #9c71e3;box-shadow:0 0 0 4px #a675e324}.range::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#f2e9ff;border:5px solid #9c71e3}.limits{display:flex;justify-content:space-between;font-size:11px;color:#9d99a9}.settings-head{margin-bottom:12px}.settings-head h2{font-size:11px;letter-spacing:1.7px;margin:0;color:#b6b2c0}.copy{background:#2a2535;border:1px solid #484053;color:#eee6fa;padding:9px 14px;border-radius:11px;font-size:13px;font-weight:650;cursor:pointer}.copy:active{transform:scale(.98)}.settings{border:1px solid #302d39;background:#171820;border-radius:18px;overflow:hidden}.setting{padding:17px 18px;border-bottom:1px solid #2e2b36;gap:15px}.setting:last-child{border-bottom:none}.name{font-size:15px;color:#b5b1bf}.value{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}.value.changing{color:#d6b7ff}.note{font-size:12px;color:#9691a2;line-height:1.65;margin:18px 2px 0}.footer{display:flex;justify-content:center;margin-top:23px}.reset{border:0;background:transparent;color:#bda5d8;padding:10px;cursor:pointer;font-size:13px}button:focus-visible,input:focus-visible{outline:2px solid #d6b7ff;outline-offset:3px}@media(max-width:360px){.bpm-value{font-size:34px}.setting{padding:15px 14px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header class="top"><div class="eyebrow">VALHALLAVINTAGEVERB</div><h1>Reverb Calculator</h1><p class="subtitle">Dark atmospheric vocals · Tempo-synced preset</p></header>
+    <section class="panel" aria-label="Tempo control"><div class="bpm-row"><span class="bpm-label">TEMPO</span><div><span id="bpm-value" class="bpm-value">133</span><span class="unit">BPM</span></div></div><input class="range" id="tempo" type="range" min="60" max="200" value="133" step="1" aria-label="Tempo in beats per minute"/><div class="limits"><span>60 BPM</span><span>200 BPM</span></div></section>
+    <div class="settings-head"><h2>PLUGIN SETTINGS</h2><button class="copy" id="copy" type="button">Copy settings</button></div>
+    <section class="settings" id="settings" aria-label="ValhallaVintageVerb settings"></section>
+    <p class="note">Predelay and decay automatically follow the tempo. The other controls preserve the dark vocal character and do not need BPM synchronization. Timing is a creative starting point, not an official artist preset.</p>
+    <div class="footer"><button class="reset" id="reset" type="button">↺ Reset to 133 BPM</button></div>
+  </main>
+  <script>
+    const tempo = document.getElementById('tempo');
+    const output = document.getElementById('bpm-value');
+    const settings = document.getElementById('settings');
+    let currentRows=[];
+    function render(){
+      const bpm=Number(tempo.value);
+      const predelay=Math.round((60000/bpm)*0.2);
+      const decay=(3.71*97/bpm).toFixed(2);
+      output.textContent=bpm;
+      tempo.style.setProperty('--progress',`${(bpm-60)/140*100}%`);
+      currentRows=[['Mix','100%'],['Predelay',`${predelay} ms`],['Decay',`${decay} s`],['Mode','Concert Hall'],['Color','NOW'],['HighFreq','6200 Hz'],['HighShelf','−9.5 dB'],['BassFreq','300 Hz'],['BassMult','1.45x'],['Size','100%'],['Attack','5%'],['Early Diff','85%'],['Late Diff','100%']];
+      settings.innerHTML=currentRows.map(([name,value],i)=>`<div class="setting"><span class="name">${name}</span><span class="value ${i===1||i===2?'changing':''}">${value}</span></div>`).join('');
+    }
+    tempo.addEventListener('input',render);
+    document.getElementById('reset').addEventListener('click',()=>{tempo.value=133;render()});
+    document.getElementById('copy').addEventListener('click',async()=>{
+      const text=`ValhallaVintageVerb — ${tempo.value} BPM\n`+currentRows.map(([k,v])=>`${k}: ${v}`).join('\n');
+      const button=document.getElementById('copy');
+      try{await navigator.clipboard.writeText(text);button.textContent='Copied!'}catch(e){
+        const field=document.createElement('textarea');field.value=text;document.body.appendChild(field);field.select();const ok=document.execCommand('copy');field.remove();button.textContent=ok?'Copied!':'Copy unavailable';
+      }
+      setTimeout(()=>button.textContent='Copy settings',1800);
+    });
+    render();
+    if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  </script>
+</body>
+</html>
